@@ -1,0 +1,37 @@
+[
+  {
+    "name": "type: refine",
+    "color": "A8A8A8",
+    "description": "Làm rõ yêu cầu, nghiên cứu, thử nghiệm, phân tích giải pháp cho issue"
+  },
+  {
+    "name": "type: design",
+    "color": "FFC300",
+    "description": "Thiết kế UI/UX, tạo mockup, wireframe cho sản phẩm"
+  },
+  {
+    "name": "type: development",
+    "color": "0074D9",
+    "description": "Công việc lập trình backend, frontend, viết code"
+  },
+  {
+    "name": "type: testing",
+    "color": "43AA8B",
+    "description": "Viết test case, test tự động, manual test, chuẩn bị test data"
+  },
+  {
+    "name": "type: devops",
+    "color": "7057FF",
+    "description": "Triển khai CI/CD, quản lý server, release, làm việc cùng Infra team"
+  },
+  {
+    "name": "type: documentation",
+    "color": "17A2B8",
+    "description": "Viết, cập nhật, dịch tài liệu kỹ thuật hoặc hướng dẫn sử dụng"
+  },
+  {
+    "name": "type: feedback",
+    "color": "FF595E",
+    "description": "Fix và xử lý các task liên quan đến feedback"
+  }
+]
