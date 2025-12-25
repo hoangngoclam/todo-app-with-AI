@@ -1,0 +1,7 @@
+{
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "text": "Follow the conventional commit message format (Indicates the kind of change 'feat', 'fix', 'docs', 'style', 'refactor', 'test', 'chore', 'perf'). Keep the commit message short and only mention the main reason for the change. Use lots of emojis at the end of commit. Add the branch name at first of the message commit For example, if the branch is 'issue-2', the commit message should start with '#2 - '. If the branch is 'issue-2-3-4-5-6', the commit message should start with '#2, #3, #4, #5, #6"
+    }
+  ],
+}
