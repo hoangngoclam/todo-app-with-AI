@@ -13,51 +13,64 @@ import type { Category } from '@/types';
  *
  * @returns The rendered `AddTask` component.
  */
-const AddTask: React.FC = () => {
+type AddTaskProps = {
+  open?: boolean;
+  onClose?: () => void;
+  initialTask?: { text: string; category: Category };
+  onSubmitTask?: (text: string, category: Category) => void;
+  mode?: 'add' | 'edit';
+};
+
+const AddTask: React.FC<AddTaskProps> = ({
+  open,
+  onClose,
+  initialTask,
+  onSubmitTask,
+  mode = 'add',
+}) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [taskText, setTaskText] = useState('');
-  const [taskCategory, setTaskCategory] = useState<Category>('Personal');
+  const [taskText, setTaskText] = useState(initialTask?.text || '');
+  const [taskCategory, setTaskCategory] = useState<Category>(initialTask?.category || 'Personal');
   const { addTodo } = useTodoStore();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const isValidTask = useMemo(() => taskText.trim().length > 0, [taskText]);
 
   useEffect(() => {
-    if (!modalOpen || typeof document === 'undefined') {
+    if (!(open ?? modalOpen) || typeof document === 'undefined') {
       return undefined;
     }
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setModalOpen(false);
+        if (onClose) onClose();
+        else setModalOpen(false);
       }
     };
-
     const focusTimeout = window.setTimeout(() => {
       inputRef.current?.focus();
     }, 75);
-
     document.addEventListener('keydown', handleKeyDown);
-
     return () => {
       window.clearTimeout(focusTimeout);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [modalOpen]);
+  }, [open, modalOpen, onClose]);
 
-  const handleAddTask = () => {
-    if (!isValidTask) {
-      return;
+  const handleSubmit = () => {
+    if (!isValidTask) return;
+    if (onSubmitTask) {
+      onSubmitTask(taskText.trim(), taskCategory);
+    } else {
+      addTodo(taskText.trim(), taskCategory);
     }
-
-    addTodo(taskText.trim(), taskCategory);
     setTaskText('');
     setTaskCategory('Personal');
-    setModalOpen(false);
+    if (onClose) onClose();
+    else setModalOpen(false);
   };
 
   const renderModal = () => {
-    if (!modalOpen || typeof document === 'undefined') {
+    if (!(open ?? modalOpen) || typeof document === 'undefined') {
       return null;
     }
 
@@ -76,10 +89,12 @@ const AddTask: React.FC = () => {
           <div className="flex items-start justify-between gap-3">
             <div>
               <h2 id="add-task-title" className="mt-1 text-2xl font-semibold text-slate-800">
-                Add a new task
+                {mode === 'edit' ? 'Edit task' : 'Add a new task'}
               </h2>
               <p className="mt-2 text-sm text-slate-500">
-                Write what you need to do and choose where it belongs. You can update it anytime.
+                {mode === 'edit'
+                  ? 'Update the details and save your changes.'
+                  : 'Write what you need to do and choose where it belongs. You can update it anytime.'}
               </p>
             </div>
             <button
@@ -95,7 +110,7 @@ const AddTask: React.FC = () => {
           <form
             onSubmit={(event) => {
               event.preventDefault();
-              handleAddTask();
+              handleSubmit();
             }}
             className="mt-6 space-y-4"
           >
@@ -148,7 +163,7 @@ const AddTask: React.FC = () => {
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
-                onClick={() => setModalOpen(false)}
+                onClick={onClose ? onClose : () => setModalOpen(false)}
                 className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-800"
               >
                 Cancel
@@ -158,7 +173,7 @@ const AddTask: React.FC = () => {
                 disabled={!isValidTask}
                 className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-300"
               >
-                Add a task
+                {mode === 'edit' ? 'Save changes' : 'Add a task'}
               </button>
             </div>
           </form>
@@ -168,18 +183,23 @@ const AddTask: React.FC = () => {
     );
   };
 
-  return (
-    <>
-      <button
-        onClick={() => setModalOpen(true)}
-        className="fixed bottom-6 right-6 rounded-full bg-indigo-600 p-3 text-white shadow-lg transition hover:bg-indigo-700 sm:bottom-8 sm:right-8 sm:p-4 md:bottom-10 md:right-10"
-        aria-label="Add task"
-      >
-        <Plus className="h-6 w-6 sm:h-7 sm:w-7" />
-      </button>
-      {renderModal()}
-    </>
-  );
+  // If used as a floating button (add mode, no open prop), render button and modal
+  if (typeof open === 'undefined') {
+    return (
+      <>
+        <button
+          onClick={() => setModalOpen(true)}
+          className="fixed bottom-6 right-6 rounded-full bg-indigo-600 p-3 text-white shadow-lg transition hover:bg-indigo-700 sm:bottom-8 sm:right-8 sm:p-4 md:bottom-10 md:right-10"
+          aria-label="Add task"
+        >
+          <Plus className="h-6 w-6 sm:h-7 sm:w-7" />
+        </button>
+        {renderModal()}
+      </>
+    );
+  }
+  // If controlled (edit mode), just render modal
+  return <>{renderModal()}</>;
 };
 
 export default AddTask;

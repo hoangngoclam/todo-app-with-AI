@@ -16,15 +16,20 @@ import type { Category, Todo } from '@/types';
  * @returns The rendered `HomePage` component.
  */
 const HomePage: React.FC = () => {
-  const { todos } = useTodoStore();
+  const todos = useTodoStore((state) => state.todos);
+  const toggleTodo = useTodoStore((state) => state.toggleTodo);
+  const deleteTodo = useTodoStore((state) => state.deleteTodo);
+  const editTask = useTodoStore((state) => state.editTask);
   const [activeFilter, setActiveFilter] = useState<'All' | Category>('All');
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Todo | null>(null);
 
-  const businessTasks = todos.filter((todo) => todo.category === 'Business');
-  const personalTasks = todos.filter((todo) => todo.category === 'Personal');
+  const businessTasks = todos.filter((todo: Todo) => todo.category === 'Business');
+  const personalTasks = todos.filter((todo: Todo) => todo.category === 'Personal');
   const filteredTodos =
     activeFilter === 'All'
       ? todos
-      : todos.filter((todo) => todo.category === activeFilter);
+      : todos.filter((todo: Todo) => todo.category === activeFilter);
 
   const handleFilterChange = (category: Category) => {
     setActiveFilter((prev) => (prev === category ? 'All' : category));
@@ -57,8 +62,17 @@ const HomePage: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              {filteredTodos.map((todo) => (
-                <TaskItem key={todo.id} todo={todo} />
+              {filteredTodos.map((todo: Todo) => (
+                <TaskItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={toggleTodo}
+                  onDelete={deleteTodo}
+                  onEdit={(task: Todo) => {
+                    setEditingTask(task);
+                    setEditModalOpen(true);
+                  }}
+                />
               ))}
             </div>
           </div>
@@ -66,6 +80,22 @@ const HomePage: React.FC = () => {
       </div>
 
       <AddTask />
+      {editingTask && editTask && (
+        <AddTask
+          open={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false);
+            setEditingTask(null);
+          }}
+          initialTask={{ text: editingTask.text, category: editingTask.category }}
+          mode="edit"
+          onSubmitTask={(text, category) => {
+            editTask(editingTask.id, { text, category });
+            setEditModalOpen(false);
+            setEditingTask(null);
+          }}
+        />
+      )}
     </div>
   );
 };

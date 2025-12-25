@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import type { Todo } from '@/types';
-import { useTodoStore } from '@/store/todoStore';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 /**
@@ -11,7 +10,11 @@ import ConfirmDialog from '@/components/ConfirmDialog';
  */
 type TaskItemProps = {
   todo: Todo;
+  onToggle: (id: number) => void;
+  onDelete: (id: number) => void;
+  onEdit?: (task: Todo) => void;
 };
+import { Pencil } from 'lucide-react';
 
 /**
  * A component that displays a single todo item.
@@ -19,12 +22,8 @@ type TaskItemProps = {
  * This component renders a checkbox to mark the todo as complete, the todo text,
  * and a button to delete the todo. The appearance of the component changes based
  * on whether the todo is completed.
- *
- * @param {TaskItemProps} props - The props for the component.
- * @returns The rendered `TaskItem` component.
  */
-const TaskItem: React.FC<TaskItemProps> = ({ todo }) => {
-  const { toggleTodo, deleteTodo } = useTodoStore();
+const TaskItem: React.FC<TaskItemProps> = ({ todo, onToggle, onDelete, onEdit }) => {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   return (
@@ -35,15 +34,12 @@ const TaskItem: React.FC<TaskItemProps> = ({ todo }) => {
           : 'border-slate-100 bg-white hover:border-indigo-200 hover:shadow-md'
       }`}
     >
-      <label
-        htmlFor={`todo-${todo.id}`}
-        className="flex flex-1 items-center gap-3 cursor-pointer"
-      >
+      <label className="flex flex-1 items-center gap-3 cursor-pointer">
         <input
           id={`todo-${todo.id}`}
           type="checkbox"
           checked={todo.completed}
-          onChange={() => toggleTodo(todo.id)}
+          onChange={() => onToggle(todo.id)}
           className="h-5 w-5 rounded-full border-slate-300 text-indigo-500 focus:ring-indigo-500"
         />
         <span
@@ -54,6 +50,15 @@ const TaskItem: React.FC<TaskItemProps> = ({ todo }) => {
           {todo.text}
         </span>
       </label>
+      {onEdit && (
+        <button
+          className="p-1 text-yellow-500 hover:text-yellow-700"
+          onClick={() => onEdit(todo)}
+          aria-label="Edit task"
+        >
+          <Pencil className="w-5 h-5" />
+        </button>
+      )}
       <button
         onClick={(event) => {
           event.stopPropagation();
@@ -70,7 +75,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ todo }) => {
         description="This action cannot be undone. Are you sure you want to remove this task?"
         confirmLabel="Delete"
         onConfirm={() => {
-          deleteTodo(todo.id);
+          onDelete(todo.id);
           setShowConfirmDelete(false);
         }}
         onCancel={() => setShowConfirmDelete(false)}

@@ -15,6 +15,7 @@ type TodoStore = {
   addTodo: (text: string, category: 'Business' | 'Personal') => void;
   toggleTodo: (id: number) => void;
   deleteTodo: (id: number) => void;
+  editTask: (id: number, updated: Partial<Omit<Todo, 'id'>>) => void;
 };
 
 /**
@@ -37,16 +38,25 @@ export const useTodoStore = create<TodoStore>()(
             { id: Date.now(), text, completed: false, category },
           ],
         })),
-      toggleTodo: (id) =>
+      toggleTodo: (id) => {
         set((state) => ({
           todos: state.todos.map((todo) =>
             todo.id === id ? { ...todo, completed: !todo.completed } : todo
           ),
-        })),
-      deleteTodo: (id) =>
+        }));
+      },
+      deleteTodo: (id) => {
         set((state) => ({
           todos: state.todos.filter((todo) => todo.id !== id),
-        })),
+        }));
+      },
+      editTask: (id: number, updated: Partial<Omit<Todo, 'id'>>) => {
+        set((state) => ({
+          todos: state.todos.map((t) =>
+            t.id === id ? { ...t, ...updated } : t
+          ),
+        }));
+      },
     }),
     {
       name: 'todo-storage',
