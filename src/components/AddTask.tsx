@@ -29,8 +29,8 @@ const AddTask: React.FC<AddTaskProps> = ({
   mode = 'add',
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [taskText, setTaskText] = useState(initialTask?.text || '');
-  const [taskCategory, setTaskCategory] = useState<Category>(initialTask?.category || 'Personal');
+  const [taskText, setTaskText] = useState<string>(initialTask?.text || '');
+  const [taskCategory, setTaskCategory] = useState<Category>( initialTask?.category || 'Personal');
   const { addTodo } = useTodoStore();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
